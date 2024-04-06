@@ -9,5 +9,8 @@ in my other audio-related projects, it offers convenient tools for dataset handl
 
 Python libraries:
 
+- torch
+- torchaudio
+- ffmpeg
 - pandas
 - phonemizer

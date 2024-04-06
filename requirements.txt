@@ -1,3 +1,5 @@
+torch
+torchaudio
 pandas
 phonemizer
 tqdm
