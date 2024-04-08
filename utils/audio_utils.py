@@ -18,7 +18,7 @@ def prepare_audio(samples, rate):
         samples = samples.mean(dim=0, keepdim=True)
     if samples.dim() == 1:
         samples = samples.unsqueeze(0)
-    #
+
     if rate != target_sample_rate:
         resample_transform = Resample(orig_freq=rate, new_freq=target_sample_rate)
         samples = resample_transform(samples)
