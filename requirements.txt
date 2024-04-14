@@ -1,5 +1,7 @@
 torch
-torchaudio
 pandas
 phonemizer
 tqdm
+torchaudio
+noisereduce
+pydub

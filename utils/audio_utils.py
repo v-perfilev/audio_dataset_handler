@@ -1,16 +1,30 @@
+import os
+
+import noisereduce as nr
 import torch
 import torchaudio
+from pydub.generators import WhiteNoise
 from torchaudio.transforms import Resample, Spectrogram
 
 n_fft = 430
 hop_length = 160
 target_sample_rate = 44100
 chunk_size = 14000
+noise_duration = 3000
+
+desired_dBFS = -20
+desired_rms = 10 ** (desired_dBFS / 20.0)
 
 
 def load_audio(file_path):
     samples, rate = torchaudio.load(file_path)
     return prepare_audio(samples, rate)
+
+
+def generate_noise(filename, path='tmp'):
+    noise = WhiteNoise().to_audio_segment(duration=3000).apply_gain(-20)
+    os.makedirs(path, exist_ok=True)
+    noise.export(f"{path}/{filename}", format="wav")
 
 
 def prepare_audio(samples, rate):
@@ -40,6 +54,19 @@ def mix_audio_samples(main_waveform, background_waveform, background_volume):
     return mixed_waveform
 
 
+def denoise(sample, rate):
+    sample = nr.reduce_noise(sample, rate)
+    return torch.from_numpy(sample)
+
+
+def normalize(sample):
+    current_rms = torch.sqrt(torch.mean(sample ** 2))
+    if current_rms > 0:
+        scaling_factor = desired_rms / current_rms
+        sample = sample * scaling_factor
+    return sample
+
+
 def divide_audio(audio):
     chunks = audio.squeeze(0).unfold(0, chunk_size, chunk_size).contiguous()
     processed_chunks = []
@@ -57,3 +84,8 @@ def compile_audio(chunks):
 def sample_to_spectrogram(sample):
     spectrogram = Spectrogram(n_fft=n_fft, hop_length=hop_length)
     return spectrogram(sample)
+
+
+def save_audio(audio_data, filename, path="target"):
+    os.makedirs(path, exist_ok=True)
+    torchaudio.save(path + "/" + filename, audio_data, target_sample_rate)
