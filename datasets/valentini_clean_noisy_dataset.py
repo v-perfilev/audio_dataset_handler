@@ -1,20 +1,18 @@
-import random
-
 from torch.utils.data import Dataset
 
-from utils.audio_utils import load_audio, mix_audio_samples, divide_audio, sample_to_spectrogram, normalize
+from utils.audio_utils import load_audio, divide_audio, sample_to_spectrogram
 
 
-class CvCleanNoisyDataset(Dataset):
+class ValentiniCleanNoisyDataset(Dataset):
     """A dataset class for creating spectrograms from clean and noisy audio files for machine learning models."""
 
-    def __init__(self, clean_files, sound_files, limit=None):
+    def __init__(self, clean_files, noisy_files, limit=None):
         """Initialize the dataset with file lists and an optional limit on the number of files to process."""
         # Limit the number of clean files if a limit is specified
         if limit is not None:
             clean_files = clean_files[:limit]
         # Preprocess the files to create spectrograms
-        self.spectrograms = self.__create_spectrograms(clean_files, sound_files)
+        self.spectrograms = self.__create_spectrograms(clean_files, noisy_files)
 
     def __len__(self):
         """Return the number of spectrogram pairs in the dataset."""
@@ -25,23 +23,18 @@ class CvCleanNoisyDataset(Dataset):
         return self.spectrograms[idx]
 
     @staticmethod
-    def __create_spectrograms(clean_files, sound_files):
+    def __create_spectrograms(clean_files, noisy_files):
         """Generate pairs of clean and noisy spectrograms from audio files."""
         clean_spectrograms = []
         noisy_spectrograms = []
 
         # Process each file to create spectrograms
-        for idx, clean_file in enumerate(clean_files):
-            sound_file = random.choice(sound_files)  # Select a random noise file
+        for idx, _ in enumerate(clean_files):
+            clean_file = clean_files[idx]
+            noisy_file = noisy_files[idx]
+
             clean_sample, clean_rate = load_audio(clean_file)
-            sound_sample, _ = load_audio(sound_file)
-
-            # Determine the volume of the noise to be added
-            background_volume = CvCleanNoisyDataset.__choose_noise_volume()
-            noisy_sample = mix_audio_samples(clean_sample, sound_sample, background_volume)
-
-            # Normalize the clean sample
-            clean_sample = normalize(clean_sample)
+            noisy_sample, noisy_rate = load_audio(noisy_file)
 
             # Divide the audio into chunks and convert to spectrograms
             clean_sample_chunks = divide_audio(clean_sample)
@@ -59,9 +52,3 @@ class CvCleanNoisyDataset(Dataset):
                 print(f"Processed {idx + 1} files from {len(clean_files)}")
 
         return list(zip(clean_spectrograms, noisy_spectrograms))
-
-    @staticmethod
-    def __choose_noise_volume(min_volume=0.2):
-        """Randomly choose a volume for the noise to be added to the clean signal."""
-        # Generate a list of possible volume levels and select one
-        return random.choice([i / 10 + min_volume for i in range(0, 5)])
