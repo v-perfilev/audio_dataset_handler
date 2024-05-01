@@ -6,7 +6,7 @@ in my other audio-related projects, it offers convenient tools for dataset handl
 ### Data Preparation
 
 Before running the project, it's essential to download and organize the necessary datasets.
-This project relies on audio data from Mozilla Common Voice and UrbanSound8K.
+This project relies on audio data from Mozilla Common Voice, UrbanSound8K, and Valentini-Botinhao.
 Please follow the steps below to prepare your data:
 
 #### 1. Mozilla Common Voice
@@ -29,14 +29,28 @@ The UrbanSound8K dataset is a compilation of urban sounds from 10 different clas
 ../_audio_data/UrbanSound8K/
 ```
 
+#### 3. Valentini-Botinhao
+
+The Valentini dataset is a collection of clean and corresponding artificially noisy
+speech recordings, designed to facilitate the training and evaluation of speech enhancement models.
+
+```
+../_audio_data/Valentini-Botinhao/
+```
+
 ### Requirements
 
 **To ensure proper functionality, make sure to have "espeak" installed on your system.**
 
-Python libraries:
+Libraries:
 
-- torch
 - ffmpeg
+- numpy
+- matplotlib
+- torchaudio
+- noisereduce
+- torch
 - pandas
 - phonemizer
 - tqdm
+
