@@ -5,13 +5,14 @@ in my other audio-related projects, it offers convenient tools for dataset handl
 
 ### Data Preparation
 
-Before running the project, it's essential to download and organize the necessary datasets. 
-This project relies on audio data from Mozilla Common Voice and UrbanSound8K. 
+Before running the project, it's essential to download and organize the necessary datasets.
+This project relies on audio data from Mozilla Common Voice and UrbanSound8K.
 Please follow the steps below to prepare your data:
 
 #### 1. Mozilla Common Voice
-The Mozilla Common Voice dataset is used for multiple languages in this project. 
-You need to download the datasets for English (en), German (de), and Russian (ru). 
+
+The Mozilla Common Voice dataset is used for multiple languages in this project.
+You need to download the datasets for English (en), German (de), and Russian (ru).
 After downloading, the data should be organized into specific directories according to the language.
 
 ```
@@ -22,7 +23,7 @@ After downloading, the data should be organized into specific directories accord
 
 #### 2. UrbanSound8K
 
-The UrbanSound8K dataset is a compilation of urban sounds from 10 different classes. 
+The UrbanSound8K dataset is a compilation of urban sounds from 10 different classes.
 
 ```
 ../_audio_data/UrbanSound8K/
@@ -35,7 +36,6 @@ The UrbanSound8K dataset is a compilation of urban sounds from 10 different clas
 Python libraries:
 
 - torch
-- torchaudio
 - ffmpeg
 - pandas
 - phonemizer

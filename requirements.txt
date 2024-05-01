@@ -2,6 +2,8 @@ torch
 pandas
 phonemizer
 tqdm
-torchaudio
-noisereduce
 pydub
+numpy~=1.26.4
+torchaudio~=2.2.2
+noisereduce~=3.0.2
+matplotlib~=3.8.3

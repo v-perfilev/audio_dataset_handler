@@ -2,7 +2,8 @@ import random
 
 from torch.utils.data import Dataset
 
-from utils.audio_utils import load_audio, mix_audio_samples, divide_audio, sample_to_spectrogram, normalize
+from utils.audio_utils import load_waveform, mix_waveforms, divide_waveform, waveform_to_spectrogram
+from utils.denoise_utils import denoise_waveform
 
 
 class CvCleanNoisyDataset(Dataset):
@@ -33,32 +34,32 @@ class CvCleanNoisyDataset(Dataset):
         # Process each file to create spectrograms
         for idx, clean_file in enumerate(clean_files):
             sound_file = random.choice(sound_files)  # Select a random noise file
-            clean_sample, clean_rate = load_audio(clean_file)
-            sound_sample, _ = load_audio(sound_file)
+            clean_sample, clean_rate = load_waveform(clean_file)
+            sound_sample, _ = load_waveform(sound_file)
 
-            # Determine the volume of the noise to be added
+            # Determine volume of the noise to be added
             background_volume = CvCleanNoisyDataset.__choose_noise_volume()
-            noisy_sample = mix_audio_samples(clean_sample, sound_sample, background_volume)
+            noisy_sample = mix_waveforms(clean_sample, sound_sample, background_volume)
 
-            # Normalize the clean sample
-            clean_sample = normalize(clean_sample)
+            # Denoise clean sample
+            clean_sample = denoise_waveform(clean_sample, clean_rate)
 
             # Divide the audio into chunks and convert to spectrograms
-            clean_sample_chunks = divide_audio(clean_sample)
+            clean_sample_chunks = divide_waveform(clean_sample)
             for clean_sample_chunk in clean_sample_chunks:
-                clean_spectrogram = sample_to_spectrogram(clean_sample_chunk)
+                clean_spectrogram = waveform_to_spectrogram(clean_sample_chunk)
                 clean_spectrograms.append(clean_spectrogram)
 
-            noisy_sample_chunks = divide_audio(noisy_sample)
+            noisy_sample_chunks = divide_waveform(noisy_sample)
             for noisy_sample_chunk in noisy_sample_chunks:
-                noisy_spectrogram = sample_to_spectrogram(noisy_sample_chunk)
+                noisy_spectrogram = waveform_to_spectrogram(noisy_sample_chunk)
                 noisy_spectrograms.append(noisy_spectrogram)
 
             # Log progress every 100 files
             if (idx + 1) % 100 == 0:
-                print(f"Processed {idx + 1} files from {len(clean_files)}")
+                print(f"Processed {idx + 1} files from {len(clean_files)}, total chunks: {len(clean_spectrograms)}")
 
-        return list(zip(clean_spectrograms, noisy_spectrograms))
+        return list(zip(noisy_spectrograms, clean_spectrograms))
 
     @staticmethod
     def __choose_noise_volume(min_volume=0.2):

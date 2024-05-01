@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset
 
-from utils.audio_utils import load_audio, sample_to_spectrogram
+from utils.audio_utils import load_waveform, waveform_to_spectrogram
 
 
 class CvSpeechPhonemesDataset(Dataset):
@@ -28,8 +28,8 @@ class CvSpeechPhonemesDataset(Dataset):
         data = []
         # Process each file-phoneme tuple to create spectrogram and store with phoneme count
         for (file, phoneme_count) in file_phoneme_tuples:
-            sample, _ = load_audio(file)
-            spectrogram = sample_to_spectrogram(sample)
+            waveform, _ = load_waveform(file)
+            spectrogram = waveform_to_spectrogram(waveform)
             data.append((spectrogram, phoneme_count))
 
         return data

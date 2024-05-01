@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset
 
-from utils.audio_utils import load_audio, divide_audio, sample_to_spectrogram
+from utils.audio_utils import load_waveform, divide_waveform, waveform_to_spectrogram
+from utils.denoise_utils import denoise_waveform
 
 
 class ValentiniCleanNoisyDataset(Dataset):
@@ -33,22 +34,25 @@ class ValentiniCleanNoisyDataset(Dataset):
             clean_file = clean_files[idx]
             noisy_file = noisy_files[idx]
 
-            clean_sample, clean_rate = load_audio(clean_file)
-            noisy_sample, noisy_rate = load_audio(noisy_file)
+            clean_waveform, clean_rate = load_waveform(clean_file)
+            noisy_waveform, noisy_rate = load_waveform(noisy_file)
+
+            # Denoise clean sample
+            clean_waveform = denoise_waveform(clean_waveform, clean_rate)
 
             # Divide the audio into chunks and convert to spectrograms
-            clean_sample_chunks = divide_audio(clean_sample)
+            clean_sample_chunks = divide_waveform(clean_waveform)
             for clean_sample_chunk in clean_sample_chunks:
-                clean_spectrogram = sample_to_spectrogram(clean_sample_chunk)
+                clean_spectrogram = waveform_to_spectrogram(clean_sample_chunk)
                 clean_spectrograms.append(clean_spectrogram)
 
-            noisy_sample_chunks = divide_audio(noisy_sample)
+            noisy_sample_chunks = divide_waveform(noisy_waveform)
             for noisy_sample_chunk in noisy_sample_chunks:
-                noisy_spectrogram = sample_to_spectrogram(noisy_sample_chunk)
+                noisy_spectrogram = waveform_to_spectrogram(noisy_sample_chunk)
                 noisy_spectrograms.append(noisy_spectrogram)
 
             # Log progress every 100 files
             if (idx + 1) % 100 == 0:
-                print(f"Processed {idx + 1} files from {len(clean_files)}")
+                print(f"Processed {idx + 1} files from {len(clean_files)}, total chunks: {len(clean_spectrograms)}")
 
-        return list(zip(clean_spectrograms, noisy_spectrograms))
+        return list(zip(noisy_spectrograms, clean_spectrograms))
