@@ -1,3 +1,5 @@
+import gc
+
 import torch
 from torch.utils.data import Dataset
 
@@ -32,16 +34,19 @@ class ValentiniSpeechPhonemesDataset(Dataset):
     def __create_data(file_phoneme_tuples):
         """Process each file and phoneme count tuple to create spectrograms."""
         data = []
+
         # Process each file-phoneme tuple to create spectrogram and store with phoneme count
         for idx, (file, phoneme_count) in enumerate(file_phoneme_tuples):
             waveform, _ = load_waveform(file)
-
             spectrogram = waveform_to_spectrogram(waveform)
             spectrograms, spectrogram_length = divide_spectrogram(spectrogram)
-            spectrograms = model(spectrograms)
+            with torch.no_grad():
+                spectrograms = model(spectrograms)
             spectrogram = compile_spectrogram(spectrograms, spectrogram_length)
-
             data.append((spectrogram, phoneme_count))
+
+            del waveform, spectrogram, spectrograms
+            gc.collect()
 
             # Log progress every 100 files
             if (idx + 1) % 100 == 0:
