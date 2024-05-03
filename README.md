@@ -40,8 +40,6 @@ speech recordings, designed to facilitate the training and evaluation of speech 
 
 ### Requirements
 
-**To ensure proper functionality, make sure to have "espeak" installed on your system.**
-
 Libraries:
 
 - ffmpeg
@@ -51,6 +49,6 @@ Libraries:
 - noisereduce
 - torch
 - pandas
-- phonemizer
+- pyphen
 - tqdm
 
