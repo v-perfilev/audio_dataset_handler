@@ -106,10 +106,9 @@ def waveform_to_spectrogram(waveform, transform=None, reshape=True):
         spectrogram_fn = transform(spectrogram_fn)
     spectrogram = spectrogram_fn(waveform)
     if reshape:
-        frequency_bins = int(config.N_FFT / 2)
+        frequency_bins = config.FREQUENCY_BINS
         spectrogram = spectrogram[:, :frequency_bins, :] if spectrogram.dim() == 3 \
             else spectrogram[:, :, :frequency_bins, :]
-        spectrogram = F.pad(spectrogram, (1, 1, 0, 0), 'constant', 0)
     return spectrogram
 
 
@@ -123,10 +122,8 @@ def spectrogram_to_waveform(spectrogram, transform=None, reshape=True):
     if transform is not None:
         inverse_spectrogram_fn = transform(inverse_spectrogram_fn)
     if reshape:
-        frequency_bins = int(config.N_FFT / 2 - 1)
-        spectrogram = F.pad(spectrogram, (0, 0, 0, 1), 'constant', 0)
-        spectrogram = spectrogram[:, :, 1:frequency_bins] if spectrogram.dim() == 3 \
-            else spectrogram[:, :, :, 1:frequency_bins]
+        frequency_bins_pad = int(config.N_FFT / 2 + 1) - config.FREQUENCY_BINS
+        spectrogram = F.pad(spectrogram, (0, 0, 0, frequency_bins_pad), 'constant', 0)
     waveform = inverse_spectrogram_fn(spectrogram)
     return waveform
 
